@@ -45,39 +45,41 @@
     for (let i = 0; i < slotsCount; i++) {
       const slot = document.createElement('div');
       slot.className = 'slot';
+      slot.id = 'slot-' + i;
 
-      // wrapper для видачі
-      const wrapper = document.createElement('div');
-      wrapper.id = 'wrapper-' + i;
-      slot.appendChild(wrapper);
+      // функція для запуску дисплейного тегу
+      function loadTag() {
+        // очищаємо слот перед новим запитом
+        slot.innerHTML = '';
 
-      // дисплейний тег
-      const script = document.createElement('script');
-      script.id = 'PDS979592_' + i;
-      script.type = 'text/javascript';
-      script.text = `(function(d){
-        var wrapper=d.createElement("script");
-        wrapper.id="WDS979592_${i}";
-        wrapper.type="text/javascript";
-        wrapper.src="https://s.adtelligent.com/?width=250&height=250&url=${pageUrl}&cb=" + (new Date()).getTime().toString() + "&aid=979592";
-        var s=d.getElementById("PDS979592_${i}");
-        s.parentNode.insertBefore(wrapper, s);
-      }(document));`;
+        const script = document.createElement('script');
+        script.id = 'PDS979592_' + i;
+        script.type = 'text/javascript';
+        script.text = `(function(d){
+          var wrapper=d.createElement("script");
+          wrapper.id="WDS979592_${i}";
+          wrapper.type="text/javascript";
+          wrapper.src="https://s.adtelligent.com/?floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=979592";
+          var s=d.getElementById("PDS979592_${i}");
+          s.parentNode.insertBefore(wrapper, s);
+        }(document));`;
 
-      slot.appendChild(script);
+        slot.appendChild(script);
+      }
+
+      // перший запуск
+      loadTag();
+      // повторний запуск кожні 25 секунд
+      setInterval(loadTag, REFRESH_INTERVAL);
+
       banner.appendChild(slot);
     }
 
     banner.style.flexDirection = (window.innerHeight > window.innerWidth) ? 'column' : 'row';
   }
 
-  function refreshSlots() {
-    renderSlots();
-  }
-
   window.addEventListener('resize', renderSlots);
   document.currentScript.parentNode.insertBefore(banner, document.currentScript);
 
   renderSlots();
-  setInterval(refreshSlots, REFRESH_INTERVAL);
 })();
