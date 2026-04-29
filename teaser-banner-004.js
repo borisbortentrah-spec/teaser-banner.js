@@ -3,11 +3,9 @@
   const MAX_SLOTS = 6;
   const REFRESH_INTERVAL = 25000; // 25 секунд
 
-  // Створюємо контейнер
   const banner = document.createElement('div');
   banner.className = 'teaser-banner';
 
-  // Додаємо стилі
   const style = document.createElement('style');
   style.textContent = `
     .teaser-banner {
@@ -22,12 +20,8 @@
     .slot {
       flex: 1 1 auto;
       margin: 5px;
-      background: #f9f9f9;
       border: 1px solid #ccc;
-      text-align: center;
-      font-family: sans-serif;
-      overflow: hidden;
-      aspect-ratio: 1 / 1; /* квадратна форма */
+      aspect-ratio: 1 / 1;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -35,7 +29,6 @@
   `;
   document.head.appendChild(style);
 
-  // Функція для рендеру слотів
   function renderSlots() {
     banner.innerHTML = '';
     const width = banner.clientWidth;
@@ -47,15 +40,18 @@
     if (area > 250000) slotsCount = 5;
     if (area > 350000) slotsCount = MAX_SLOTS;
 
+    const pageUrl = encodeURIComponent(window.location.href);
+
     for (let i = 0; i < slotsCount; i++) {
       const slot = document.createElement('div');
       slot.className = 'slot';
-      slot.id = 'slot-' + i;
 
-      // Поточний URL сторінки
-      const pageUrl = encodeURIComponent(window.location.href);
+      // wrapper для видачі
+      const wrapper = document.createElement('div');
+      wrapper.id = 'wrapper-' + i;
+      slot.appendChild(wrapper);
 
-      // Вставляємо дисплейний тег
+      // дисплейний тег
       const script = document.createElement('script');
       script.id = 'PDS979592_' + i;
       script.type = 'text/javascript';
@@ -72,28 +68,16 @@
       banner.appendChild(slot);
     }
 
-    // Орієнтація
-    if (window.innerHeight > window.innerWidth) {
-      banner.style.flexDirection = 'column'; // портрет
-    } else {
-      banner.style.flexDirection = 'row'; // ландшафт
-    }
+    banner.style.flexDirection = (window.innerHeight > window.innerWidth) ? 'column' : 'row';
   }
 
-  // Функція рефрешу
   function refreshSlots() {
     renderSlots();
   }
 
-  // Слухаємо resize
   window.addEventListener('resize', renderSlots);
-
-  // Вставляємо банер у плейсмент
   document.currentScript.parentNode.insertBefore(banner, document.currentScript);
 
-  // Початковий рендер
   renderSlots();
-
-  // Запускаємо рефреш кожні 25 секунд
   setInterval(refreshSlots, REFRESH_INTERVAL);
 })();
