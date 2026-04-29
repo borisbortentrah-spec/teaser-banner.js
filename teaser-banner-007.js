@@ -25,6 +25,8 @@
       margin: 5px;
       border: 1px solid #ccc;
       aspect-ratio: 1 / 1;
+      max-width: 255px;   /* обмеження по ширині */
+      max-height: 255px;  /* обмеження по висоті */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -68,9 +70,7 @@
         slot.appendChild(script);
       }
 
-      // перший запуск
       loadTag();
-      // повторний запуск кожні 25 секунд
       setInterval(loadTag, REFRESH_INTERVAL);
 
       banner.appendChild(slot);
