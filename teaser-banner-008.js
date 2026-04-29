@@ -1,22 +1,23 @@
-(function() {
+(function(){
+  // читаємо маркер, куди вставляти віджет
+  const targetId = document.currentScript.getAttribute('data-target');
+  const container = document.getElementById(targetId);
+  if (!container) return;
+
   const MIN_SLOTS = 3;
   const MAX_SLOTS = 6;
-  const REFRESH_INTERVAL = 25000; // 25 секунд
-
-  // список aid для слотів
+  const REFRESH_INTERVAL = 25000;
   const aids = [979592, 979602, 979603, 979604, 979605, 979606];
 
   const banner = document.createElement('div');
   banner.className = 'teaser-banner';
+  container.appendChild(banner);
 
   const style = document.createElement('style');
   style.textContent = `
     .teaser-banner {
       display: flex;
       flex-wrap: wrap;
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
       justify-content: center;
       align-items: center;
     }
@@ -25,8 +26,8 @@
       margin: 5px;
       border: 1px solid #ccc;
       aspect-ratio: 1 / 1;
-      max-width: 255px;   /* обмеження по ширині */
-      max-height: 255px;  /* обмеження по висоті */
+      max-width: 255px;
+      max-height: 255px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -50,23 +51,21 @@
     for (let i = 0; i < slotsCount; i++) {
       const slot = document.createElement('div');
       slot.className = 'slot';
-      slot.id = 'slot-' + i;
+      slot.id = targetId + '-slot-' + i;
 
       function loadTag() {
         slot.innerHTML = '';
-
         const script = document.createElement('script');
-        script.id = 'PDS' + aids[i];
+        script.id = 'PDS' + aids[i] + '_' + targetId;
         script.type = 'text/javascript';
         script.text = `(function(d){
           var wrapper=d.createElement("script");
-          wrapper.id="WDS${aids[i]}";
+          wrapper.id="WDS${aids[i]}_${targetId}";
           wrapper.type="text/javascript";
-          wrapper.src="https://s.adtelligent.com/?placement_id=slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=${aids[i]}";
-          var s=d.getElementById("PDS${aids[i]}");
+          wrapper.src="https://s.adtelligent.com/?placement_id=${targetId}_slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime() + "&aid=${aids[i]}";
+          var s=d.getElementById("PDS${aids[i]}_${targetId}");
           s.parentNode.insertBefore(wrapper, s);
         }(document));`;
-
         slot.appendChild(script);
       }
 
@@ -80,7 +79,5 @@
   }
 
   window.addEventListener('resize', renderSlots);
-  document.currentScript.parentNode.insertBefore(banner, document.currentScript);
-
   renderSlots();
 })();
