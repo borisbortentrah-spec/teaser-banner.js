@@ -47,9 +47,7 @@
       slot.className = 'slot';
       slot.id = 'slot-' + i;
 
-      // функція для запуску дисплейного тегу
       function loadTag() {
-        // очищаємо слот перед новим запитом
         slot.innerHTML = '';
 
         const script = document.createElement('script');
@@ -59,7 +57,7 @@
           var wrapper=d.createElement("script");
           wrapper.id="WDS979592_${i}";
           wrapper.type="text/javascript";
-          wrapper.src="https://s.adtelligent.com/?floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=979592";
+          wrapper.src="https://s.adtelligent.com/?placement_id=slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=979592";
           var s=d.getElementById("PDS979592_${i}");
           s.parentNode.insertBefore(wrapper, s);
         }(document));`;
