@@ -52,6 +52,9 @@
       slot.className = 'slot';
       slot.id = 'slot-' + i;
 
+      // Поточний URL сторінки
+      const pageUrl = encodeURIComponent(window.location.href);
+
       // Вставляємо дисплейний тег
       const script = document.createElement('script');
       script.id = 'PDS979592_' + i;
@@ -60,7 +63,7 @@
         var wrapper=d.createElement("script");
         wrapper.id="WDS979592_${i}";
         wrapper.type="text/javascript";
-        wrapper.src="https://s.adtelligent.com/?width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=979592";
+        wrapper.src="https://s.adtelligent.com/?width=250&height=250&url=${pageUrl}&cb=" + (new Date()).getTime().toString() + "&aid=979592";
         var s=d.getElementById("PDS979592_${i}");
         s.parentNode.insertBefore(wrapper, s);
       }(document));`;
