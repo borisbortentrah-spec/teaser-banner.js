@@ -1,17 +1,7 @@
 (function() {
-  // Конфіг: мінімум і максимум слотів
   const MIN_SLOTS = 3;
   const MAX_SLOTS = 6;
-
-  // Масив креативів (замінити на реальні дані)
-  const creatives = [
-    { img: 'https://via.placeholder.com/300?text=Креатив+1', text: 'Рекламний текст 1' },
-    { img: 'https://via.placeholder.com/300?text=Креатив+2', text: 'Рекламний текст 2' },
-    { img: 'https://via.placeholder.com/300?text=Креатив+3', text: 'Рекламний текст 3' },
-    { img: 'https://via.placeholder.com/300?text=Креатив+4', text: 'Рекламний текст 4' },
-    { img: 'https://via.placeholder.com/300?text=Креатив+5', text: 'Рекламний текст 5' },
-    { img: 'https://via.placeholder.com/300?text=Креатив+6', text: 'Рекламний текст 6' }
-  ];
+  const REFRESH_INTERVAL = 25000; // 25 секунд
 
   // Створюємо контейнер
   const banner = document.createElement('div');
@@ -39,51 +29,45 @@
       overflow: hidden;
       aspect-ratio: 1 / 1; /* квадратна форма */
       display: flex;
-      flex-direction: column;
       justify-content: center;
-    }
-    .slot img {
-      max-width: 100%;
-      max-height: 70%;
-      object-fit: cover;
-    }
-    .slot p {
-      margin: 5px 0;
-      font-size: 12px;
+      align-items: center;
     }
   `;
   document.head.appendChild(style);
 
-  // Функція для рендеру слотів залежно від розміру контейнера
+  // Функція для рендеру слотів
   function renderSlots() {
     banner.innerHTML = '';
     const width = banner.clientWidth;
     const height = banner.clientHeight;
     const area = width * height;
 
-    // Просте правило: більше площа → більше слотів
     let slotsCount = MIN_SLOTS;
     if (area > 150000) slotsCount = 4;
     if (area > 250000) slotsCount = 5;
     if (area > 350000) slotsCount = MAX_SLOTS;
 
-    const selected = creatives.slice(0, slotsCount);
-
-    selected.forEach(c => {
+    for (let i = 0; i < slotsCount; i++) {
       const slot = document.createElement('div');
       slot.className = 'slot';
+      slot.id = 'slot-' + i;
 
-      const img = document.createElement('img');
-      img.src = c.img;
-      img.alt = c.text;
+      // Вставляємо дисплейний тег
+      const script = document.createElement('script');
+      script.id = 'PDS979592_' + i;
+      script.type = 'text/javascript';
+      script.text = `(function(d){
+        var wrapper=d.createElement("script");
+        wrapper.id="WDS979592_${i}";
+        wrapper.type="text/javascript";
+        wrapper.src="https://s.adtelligent.com/?width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=979592";
+        var s=d.getElementById("PDS979592_${i}");
+        s.parentNode.insertBefore(wrapper, s);
+      }(document));`;
 
-      const p = document.createElement('p');
-      p.textContent = c.text;
-
-      slot.appendChild(img);
-      slot.appendChild(p);
+      slot.appendChild(script);
       banner.appendChild(slot);
-    });
+    }
 
     // Орієнтація
     if (window.innerHeight > window.innerWidth) {
@@ -93,12 +77,20 @@
     }
   }
 
+  // Функція рефрешу
+  function refreshSlots() {
+    renderSlots();
+  }
+
   // Слухаємо resize
   window.addEventListener('resize', renderSlots);
 
-  // Вставляємо банер у контейнер (плейсмент)
+  // Вставляємо банер у плейсмент
   document.currentScript.parentNode.insertBefore(banner, document.currentScript);
 
   // Початковий рендер
   renderSlots();
+
+  // Запускаємо рефреш кожні 25 секунд
+  setInterval(refreshSlots, REFRESH_INTERVAL);
 })();
