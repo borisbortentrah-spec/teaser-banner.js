@@ -61,18 +61,38 @@
           script.id = `PDS${aids[i]}_${targetId}_${i}`;
           script.type = 'text/javascript';
           script.text = `(function(d){
-            console.log("[TEASER] Виконання wrapper для aid=${aids[i]} slot=${i}");
+            console.log("[TEASER] Виконання wrapper aid=${aids[i]} slot=${i}");
             var wrapper=d.createElement("script");
             wrapper.id="WDS${aids[i]}_${targetId}_${i}";
             wrapper.type="text/javascript";
             wrapper.src="https://s.adtelligent.com/?placement_id=${targetId}_slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime() + "&aid=${aids[i]}";
             console.log("[TEASER] SRC=", wrapper.src);
+
+            // перехоплення помилок завантаження
+            wrapper.onload = function(){
+              console.log("[TEASER] ✅ Wrapper успішно завантажився aid=" + ${aids[i]});
+            };
+            wrapper.onerror = function(e){
+              console.error("[TEASER] ❌ Помилка завантаження wrapper aid=" + ${aids[i]}, e);
+            };
+
             var s=d.getElementById("PDS${aids[i]}_${targetId}_${i}");
-            if (!s) { console.error("[TEASER] Не знайдено елемент PDS для вставки"); return; }
+            if (!s) { console.error("[TEASER] Не знайдено PDS для вставки"); return; }
             s.parentNode.insertBefore(wrapper, s);
             console.log("[TEASER] Wrapper вставлено у DOM");
           }(document));`;
+
           slot.appendChild(script);
+
+          // перевірка появи iframe
+          setTimeout(() => {
+            const iframes = slot.querySelectorAll('iframe');
+            if (iframes.length > 0) {
+              console.log(`[TEASER] ✅ iframe з’явився у ${slot.id}`, iframes);
+            } else {
+              console.warn(`[TEASER] ⚠ iframe НЕ з’явився у ${slot.id}`);
+            }
+          }, 2000);
         }
 
         loadTag();
