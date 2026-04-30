@@ -1,7 +1,7 @@
 (async function(){
   const currentScript = document.currentScript;
 
-  // читаємо параметри з інтеграційного скрипта
+  // параметри з інтеграційного скрипта
   const aid = currentScript.getAttribute('data-aid') || '979592';
   const width = currentScript.getAttribute('data-width') || 250;
   const height = currentScript.getAttribute('data-height') || 250;
@@ -20,17 +20,31 @@
   try {
     console.log("[ADSERVER] Запит:", url);
 
-    // робимо запит
+    // отримуємо видачу як текст
     const response = await fetch(url, { cache: "no-store" });
     const adUnitResponse = await response.text();
 
-    // оптимізована вставка: одразу у DOM без додаткових об'єктів
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `<script id="PDS${aid}" type="text/javascript">${adUnitResponse}</script>`
-    );
+    console.log("[ADSERVER] Відповідь отримано");
+
+    // створюємо <script> і вставляємо видачу
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.id = `PDS${aid}`;
+    script.text = adUnitResponse;
+    document.body.appendChild(script);
 
     console.log("[ADSERVER] ✅ Видачу вставлено у DOM");
+
+    // перевірка появи iframe після виконання
+    setTimeout(() => {
+      const iframes = document.querySelectorAll(`iframe`);
+      if (iframes.length > 0) {
+        console.log(`[ADSERVER] ✅ iframe з’явився для aid=${aid}`, iframes);
+      } else {
+        console.warn(`[ADSERVER] ⚠ iframe НЕ з’явився для aid=${aid}`);
+      }
+    }, 2000);
+
   } catch (err) {
     console.error("[ADSERVER] ❌ Помилка:", err);
   }
