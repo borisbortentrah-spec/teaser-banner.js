@@ -25,7 +25,7 @@
       const response = await fetch(url, { cache: "no-store" });
       const adUnitResponse = await response.text();
 
-      // створюємо iframe для видачі
+      // створюємо iframe
       const iframe = document.createElement("iframe");
       iframe.width = width;
       iframe.height = height;
@@ -38,7 +38,7 @@
       doc.write(adUnitResponse);
       doc.close();
 
-      // перехоплення клік‑URL всередині iframe
+      // перехоплення кліків
       const observer = new MutationObserver(() => {
         const links = doc.querySelectorAll("a[href]");
         links.forEach(link => {
