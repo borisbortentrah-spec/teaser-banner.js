@@ -55,7 +55,6 @@
 
         function loadTag() {
           console.log(`[TEASER] Завантаження DSP‑тега aid=${aids[i]} для ${slot.id}`);
-          slot.innerHTML = '';
 
           const dspScript = document.createElement('script');
           dspScript.id = `DSP_${aids[i]}_${targetId}_${i}`;
