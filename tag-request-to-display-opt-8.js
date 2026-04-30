@@ -1,4 +1,17 @@
 (function(){
+  function processClickUrl(clickUrl) {
+    try {
+      const urlObj = new URL(clickUrl);
+      const adid = urlObj.searchParams.get("adid");
+      const trackerUrl = `${urlObj.origin}${urlObj.pathname}?adid=${adid}`;
+      const targetUrl = urlObj.searchParams.get("r");
+      return { trackerUrl, targetUrl };
+    } catch (e) {
+      console.error("[CLICK] ❌ Помилка розбору clickUrl:", e);
+      return null;
+    }
+  }
+
   async function initBanner(scriptTag) {
     const aid = scriptTag.getAttribute("data-aid");
     const width = scriptTag.getAttribute("data-width") || 250;
@@ -17,6 +30,7 @@
       iframe.width = width;
       iframe.height = height;
       iframe.style.border = "0";
+      iframe.style.display = "block";
       scriptTag.parentNode.insertBefore(iframe, scriptTag);
 
       const doc = iframe.contentWindow.document;
@@ -24,7 +38,7 @@
       doc.write(adUnitResponse);
       doc.close();
 
-      // перехоплення клік‑URL
+      // перехоплення клік‑URL всередині iframe
       const observer = new MutationObserver(() => {
         const links = doc.querySelectorAll("a[href]");
         links.forEach(link => {
@@ -44,19 +58,6 @@
 
     } catch (err) {
       console.error("[ADSERVER] ❌ Помилка:", err);
-    }
-  }
-
-  function processClickUrl(clickUrl) {
-    try {
-      const urlObj = new URL(clickUrl);
-      const adid = urlObj.searchParams.get("adid");
-      const trackerUrl = `${urlObj.origin}${urlObj.pathname}?adid=${adid}`;
-      const targetUrl = urlObj.searchParams.get("r");
-      return { trackerUrl, targetUrl };
-    } catch (e) {
-      console.error("[CLICK] ❌ Помилка розбору clickUrl:", e);
-      return null;
     }
   }
 
