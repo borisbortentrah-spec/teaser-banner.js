@@ -4,6 +4,7 @@
   const REFRESH_INTERVAL = 25000;
   const aids = [979592, 979602, 979603, 979604, 979605, 979606];
 
+  // стилі для слотів
   const style = document.createElement('style');
   style.textContent = `
     .teaser-banner {
@@ -26,11 +27,8 @@
   `;
   document.head.appendChild(style);
 
-  // шукаємо всі маркери
-  const placeholders = document.querySelectorAll('.teaser-placeholder');
-  placeholders.forEach((container, index) => {
-    const targetId = container.id || ('teaser' + index);
-
+  // ініціалізація банера в контейнері
+  function initBanner(container, targetId) {
     const banner = document.createElement('div');
     banner.className = 'teaser-banner';
     container.appendChild(banner);
@@ -48,18 +46,19 @@
       for (let i = 0; i < slotsCount; i++) {
         const slot = document.createElement('div');
         slot.className = 'slot';
+        slot.id = `${targetId}-slot-${i}`;
 
         function loadTag() {
           slot.innerHTML = '';
           const script = document.createElement('script');
-          script.id = 'PDS' + aids[i] + '_' + targetId;
+          script.id = `PDS${aids[i]}_${targetId}_${i}`;
           script.type = 'text/javascript';
           script.text = `(function(d){
             var wrapper=d.createElement("script");
-            wrapper.id="WDS${aids[i]}_${targetId}";
+            wrapper.id="WDS${aids[i]}_${targetId}_${i}";
             wrapper.type="text/javascript";
             wrapper.src="https://s.adtelligent.com/?placement_id=${targetId}_slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime() + "&aid=${aids[i]}";
-            var s=d.getElementById("PDS${aids[i]}_${targetId}");
+            var s=d.getElementById("PDS${aids[i]}_${targetId}_${i}");
             s.parentNode.insertBefore(wrapper, s);
           }(document));`;
           slot.appendChild(script);
@@ -70,9 +69,17 @@
 
         banner.appendChild(slot);
       }
+
+      banner.style.flexDirection = (window.innerHeight > window.innerWidth) ? 'column' : 'row';
     }
 
     renderSlots();
     window.addEventListener('resize', renderSlots);
+  }
+
+  // знаходимо всі маркери на сторінці
+  const placeholders = document.querySelectorAll('.teaser-placeholder');
+  placeholders.forEach((container, index) => {
+    initBanner(container, container.id || ('teaser' + index));
   });
 })();
