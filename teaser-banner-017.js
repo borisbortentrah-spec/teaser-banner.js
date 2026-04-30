@@ -1,48 +1,86 @@
-(function(){
-  const REFRESH_INTERVAL = 25000;
-  const aids = [979592, 979602, 979603];
+(function() {
+  const MIN_SLOTS = 3;
+  const MAX_SLOTS = 6;
+  const REFRESH_INTERVAL = 25000; // 25 секунд
 
-  console.log("[TEASER] Скрипт ініціалізовано");
+  // список aid для слотів
+  const aids = [979592, 979602, 979603, 979604, 979605, 979606];
 
-  function initBanner(container, targetId) {
-    console.log(`[TEASER] Ініціалізація банера для контейнера: ${targetId}`);
+  const banner = document.createElement('div');
+  banner.className = 'teaser-banner';
 
-    function loadTag(aid, slotIndex) {
-      console.log(`[TEASER] Завантаження DSP‑тега aid=${aid} для ${targetId}_slot${slotIndex}`);
+  const style = document.createElement('style');
+  style.textContent = `
+    .teaser-banner {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      justify-content: center;
+      align-items: center;
+    }
+    .slot {
+      flex: 1 1 auto;
+      margin: 5px;
+      border: 1px solid #ccc;
+      aspect-ratio: 1 / 1;
+      max-width: 255px;   /* обмеження по ширині */
+      max-height: 255px;  /* обмеження по висоті */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  `;
+  document.head.appendChild(style);
 
-      const dspScript = document.createElement('script');
-      dspScript.id = `DSP_${aid}_${targetId}_${slotIndex}`;
-      dspScript.type = 'text/javascript';
-      dspScript.src = "https://s.adtelligent.com/?" +
-        "placement_id=" + `${targetId}_slot${slotIndex}` +
-        "&floor_cpm=[replace_me]" +
-        "&site_full_url=" + encodeURIComponent(window.location.href) +
-        "&ua=[replace_me]" +
-        "&uip=[replace_me]" +
-        "&width=250&height=250" +
-        "&cb=" + Date.now() +
-        "&aid=" + aid;
+  function renderSlots() {
+    banner.innerHTML = '';
+    const width = banner.clientWidth;
+    const height = banner.clientHeight;
+    const area = width * height;
 
-      dspScript.onload = () => {
-        console.log(`[TEASER] ✅ DSP‑тег завантажився aid=${aid}`);
-      };
-      dspScript.onerror = (e) => {
-        console.error(`[TEASER] ❌ Помилка завантаження DSP‑тега aid=${aid}`, e);
-      };
+    let slotsCount = MIN_SLOTS;
+    if (area > 150000) slotsCount = 4;
+    if (area > 250000) slotsCount = 5;
+    if (area > 350000) slotsCount = MAX_SLOTS;
 
-      container.appendChild(dspScript);
+    const pageUrl = encodeURIComponent(window.location.href);
+
+    for (let i = 0; i < slotsCount; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.id = 'slot-' + i;
+
+      function loadTag() {
+        slot.innerHTML = '';
+
+        const script = document.createElement('script');
+        script.id = 'PDS' + aids[i];
+        script.type = 'text/javascript';
+        script.text = `(function(d){
+          var wrapper=d.createElement("script");
+          wrapper.id="WDS${aids[i]}";
+          wrapper.type="text/javascript";
+          wrapper.src="https://s.adtelligent.com/?placement_id=slot${i+1}&floor_cpm=[replace_me]&site_full_url=${pageUrl}&ua=[replace_me]&uip=[replace_me]&width=250&height=250&cb=" + (new Date()).getTime().toString() + "&aid=${aids[i]}";
+          var s=d.getElementById("PDS${aids[i]}");
+          s.parentNode.insertBefore(wrapper, s);
+        }(document));`;
+
+        slot.appendChild(script);
+      }
+
+      loadTag();
+      setInterval(loadTag, REFRESH_INTERVAL);
+
+      banner.appendChild(slot);
     }
 
-    // запускаємо всі слоти
-    for (let i = 0; i < aids.length; i++) {
-      loadTag(aids[i], i+1);
-      setInterval(() => loadTag(aids[i], i+1), REFRESH_INTERVAL);
-    }
+    banner.style.flexDirection = (window.innerHeight > window.innerWidth) ? 'column' : 'row';
   }
 
-  const placeholders = document.querySelectorAll('.teaser-placeholder');
-  console.log(`[TEASER] Знайдено маркерів: ${placeholders.length}`);
-  placeholders.forEach((container, index) => {
-    initBanner(container, container.id || ('teaser' + index));
-  });
+  window.addEventListener('resize', renderSlots);
+  document.currentScript.parentNode.insertBefore(banner, document.currentScript);
+
+  renderSlots();
 })();
