@@ -26,28 +26,28 @@
   `;
   document.head.appendChild(style);
 
-  function initBanner(container, targetId) {
+  // шукаємо всі маркери
+  const placeholders = document.querySelectorAll('.teaser-placeholder');
+  placeholders.forEach((container, index) => {
+    const targetId = container.id || ('teaser' + index);
+
     const banner = document.createElement('div');
     banner.className = 'teaser-banner';
     container.appendChild(banner);
 
     function renderSlots() {
       banner.innerHTML = '';
-      const width = banner.clientWidth;
-      const height = banner.clientHeight;
-      const area = width * height;
+      const pageUrl = encodeURIComponent(window.location.href);
 
       let slotsCount = MIN_SLOTS;
+      const area = banner.clientWidth * banner.clientHeight;
       if (area > 150000) slotsCount = 4;
       if (area > 250000) slotsCount = 5;
       if (area > 350000) slotsCount = MAX_SLOTS;
 
-      const pageUrl = encodeURIComponent(window.location.href);
-
       for (let i = 0; i < slotsCount; i++) {
         const slot = document.createElement('div');
         slot.className = 'slot';
-        slot.id = targetId + '-slot-' + i;
 
         function loadTag() {
           slot.innerHTML = '';
@@ -70,17 +70,9 @@
 
         banner.appendChild(slot);
       }
-
-      banner.style.flexDirection = (window.innerHeight > window.innerWidth) ? 'column' : 'row';
     }
 
-    window.addEventListener('resize', renderSlots);
     renderSlots();
-  }
-
-  // знаходимо всі маркери на сторінці
-  const placeholders = document.querySelectorAll('.teaser-placeholder');
-  placeholders.forEach((container, index) => {
-    initBanner(container, container.id || ('teaser' + index));
+    window.addEventListener('resize', renderSlots);
   });
 })();
